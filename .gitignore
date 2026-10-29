@@ -1,0 +1,34 @@
+# Local tool output and development signing material
+.build/
+dist/
+.gradle/
+**/build/
+local.properties
+*.apk
+*.aab
+*.dex
+*.class
+*.jar
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.key
+*.pem
+.env
+.env.*
+!.env.example
+# Never commit operational rosters, handoffs or court workbooks
+*.jury
+*.xlsx
+*.xls
+*.tsv
+*.json
+*.csv
+!examples/roster.csv
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

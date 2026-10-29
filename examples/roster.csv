@@ -1,0 +1,4 @@
+First Name,Last Name,Role,Status,Email Address,New/Current Email Address,Phone,Position,Resigned Date
+Alex,Sample,Juror,Active,alex@example.invalid,,,Foreperson,
+Casey,Example,Alternate,Active,casey@example.invalid,,,Alt #1,
+Jordan,Demo,Juror,Resigned,jordan@example.invalid,,,,2026-09-15
