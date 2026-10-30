@@ -21,11 +21,11 @@ if ((Get-FileHash -LiteralPath $JsonJar -Algorithm SHA256).Hash -ne $expectedHas
 $classes = Join-Path $TestDirectory ('classes-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $classes | Out-Null
 $main = Join-Path $PSScriptRoot 'app/src/main/java/com/mauri/juryroster'
-$sources = @('RosterCore.java','CourtFile.java','HandoffCrypto.java','Store.java') | ForEach-Object { Join-Path $main $_ }
+$sources = @('RosterCore.java','MeetingBook.java','CourtFile.java','HandoffCrypto.java','Store.java') | ForEach-Object { Join-Path $main $_ }
 $sources += @(Get-ChildItem (Join-Path $PSScriptRoot 'tests') -Filter '*.java' | ForEach-Object { $_.FullName })
 & "$JavaHome/bin/javac.exe" -encoding UTF-8 -cp "$JsonJar;$AndroidJar" -d $classes @sources
 if ($LASTEXITCODE -ne 0) { throw 'Test compilation failed.' }
-foreach ($suite in @('CoreTests','PersistenceTests','EmailTests','ConfigTests','FilterTests')) {
+foreach ($suite in @('CoreTests','PersistenceTests','EmailTests','ConfigTests','FilterTests','OnboardingTests','MeetingTests')) {
  & "$JavaHome/bin/java.exe" -cp "$JsonJar;$classes;$AndroidJar" "com.mauri.juryroster.$suite"
  if ($LASTEXITCODE -ne 0) { throw "$suite failed." }
 }

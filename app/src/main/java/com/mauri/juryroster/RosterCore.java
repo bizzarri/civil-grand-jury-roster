@@ -11,8 +11,10 @@ public final class RosterCore {
  public final Set<String> rosterGroups=new LinkedHashSet<>(Arrays.asList(ROSTER_GROUPS));
  public boolean visibleInRoster(Person p){String group=p.active()?(p.get("role").equals("Alternate")?"Alternates":"Active jurors"):(p.get("status").equals("Resigned")?"Resigned":"Other departures");return rosterGroups.contains(group);}
  public void setRosterGroups(Set<String> groups){for(String group:groups)if(!Arrays.asList(ROSTER_GROUPS).contains(group))throw new IllegalArgumentException("Unknown roster filter.");rosterGroups.clear();rosterGroups.addAll(groups);}
+ public MeetingBook meetingBook=new MeetingBook();
  public String appName="Civil Grand Jury Roster";
  public String[] titles={"Foreperson","Foreperson pro tem","Recording Secretary","Corresponding Secretary","Assistant Secretary","","",""};
+ public String termStart="2026-07-01",termEnd="2027-06-30";
  public String term="2026-2027",foreperson="",handoffNotes="";
  public int seats=19,alternateSlots=20;
  public String countyDomain="amadorcounty.gov",countyPattern="{first_initial}{last}";
@@ -39,6 +41,11 @@ public final class RosterCore {
   return address;
  }
  public String titleText(Person p){List<String> labels=new ArrayList<>();for(String id:p.titleIds){int slot=Integer.parseInt(id);if(slot>=0&&slot<titles.length&&!titles[slot].isEmpty())labels.add(titles[slot]);}return String.join(" · ",labels);}
+ public void setTermDates(String start,String end){
+  java.time.LocalDate a=MeetingBook.date(start),b=MeetingBook.date(end);if(b.isBefore(a))throw new IllegalArgumentException("Term end must be on or after term start.");
+  if(a.getYear()!=Integer.parseInt(term.substring(0,4))||b.getYear()!=Integer.parseInt(term.substring(5)))throw new IllegalArgumentException("Term dates must match the displayed term years.");
+  termStart=start;termEnd=end;
+ }
  public void configure(String name,String years,int regular,int alternate,String[] names){
   name=clean(name);years=clean(years);if(name.isEmpty()||name.length()>60)throw new IllegalArgumentException("Enter an app name of 1–60 characters.");
   if(!years.matches("[0-9]{4}[-–][0-9]{4}"))throw new IllegalArgumentException("Enter term years as YYYY-YYYY, such as 2026-2027.");
@@ -46,7 +53,14 @@ public final class RosterCore {
   if(regular<1||regular>100||alternate<0||alternate>100)throw new IllegalArgumentException("Enter 1–100 regular seats and 0–100 alternate slots.");
   if(names.length!=8)throw new IllegalArgumentException("Eight title slots are required.");Set<String> unique=new HashSet<>();String[] normalized=new String[8];
   for(int i=0;i<8;i++){String title=clean(names[i]);if(title.length()>60)throw new IllegalArgumentException("Titles must be 60 characters or fewer.");if(!title.isEmpty()&&!unique.add(key(title)))throw new IllegalArgumentException("Title names must be unique.");if(title.isEmpty())for(Person p:people)if(p.titleIds.contains(String.valueOf(i)))throw new IllegalArgumentException("Title slot "+(i+1)+" is still assigned. Unassign it from members before clearing it.");normalized[i]=title;}
-  appName=name;term=years.replace('–','-');seats=regular;alternateSlots=alternate;titles=normalized;log("","Configuration updated",name+" · "+term+" · title names updated");
+  if(!term.equals(years.replace('–','-'))){termStart=start+"-07-01";termEnd=end+"-06-30";}appName=name;term=years.replace('–','-');seats=regular;alternateSlots=alternate;titles=normalized;log("","Configuration updated",name+" · "+term+" · title names updated");
+ }
+ public int completeOnboarding(Set<String> memberIds,Set<String> completed,Set<String> roles){
+  if(memberIds.isEmpty())throw new IllegalArgumentException("Select at least one member.");
+  if(completed.isEmpty()||!Arrays.asList("Oath completed","Orientation completed").containsAll(completed))throw new IllegalArgumentException("Select oath and/or orientation completion.");
+  if(roles.isEmpty()||!Arrays.asList("Juror","Alternate").containsAll(roles))throw new IllegalArgumentException("Select active jurors and/or alternates.");
+  List<Person> members=new ArrayList<>();for(String id:memberIds){Person p=find(id);if(p==null||!p.active()||!roles.contains(p.get("role")))throw new IllegalArgumentException("A selected member is no longer in the chosen active group. Reopen the preview.");members.add(p);}
+  int changed=0;String at=now();for(Person p:members){Set<String> added=new LinkedHashSet<>(completed);added.removeAll(p.onboarding);if(added.isEmpty())continue;p.onboarding.addAll(added);p.updatedAt=at;log(p.id,"Bulk onboarding completed",String.join(", ",added));changed++;}return changed;
  }
  public static String now(){return Instant.now().toString();}
  public static String clean(String s){return s==null?"":s.trim();}
