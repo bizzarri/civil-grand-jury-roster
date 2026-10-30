@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.7 — 2026-10-30
+
+- Exact term start/end dates in Config > App & Term, with calendar pickers and handoff persistence.
+- Older rosters gain July 1–June 30 defaults based on their saved term years.
+
+## 1.6
+
+- Meeting-day roster checkboxes for in-person and online attendance; choosing one clears the other.
+- Both modes count as present and persist in meeting history, CSV and encrypted handoffs.
+- Existing unspecified Present records remain supported.
+
+## 1.5
+
+- Meetings and attendance under Work, preserving the five existing navigation tabs.
+- Configurable weekday/occurrence schedule, preview, individual dates, rescheduling, cancellation and removal.
+- Persistent exceptions prevent regeneration from reviving skipped dates.
+- Historical participant snapshots, editable attendance, attendance CSV and encrypted handoff support.
+- Removed meetings retain attendance history and may be restored.
+
+## 1.4
+
+- Bulk oath/orientation completion with role selection, member preview and per-member history.
+
 ## 1.3 — initial public source baseline
 
 - Regular jurors, alternates, departures and vacancies for one term.
