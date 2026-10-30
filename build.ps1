@@ -21,7 +21,7 @@ function Checked([string]$Program,[string[]]$Arguments) {
 }
 $main = Join-Path $PSScriptRoot 'app/src/main'
 Checked "$BuildTools/aapt2.exe" @('compile','--dir',"$main/res",'-o',"$BuildDirectory/resources.zip")
-Checked "$BuildTools/aapt2.exe" @('link','-o',"$BuildDirectory/unsigned.apk",'-I',$AndroidJar,'--manifest',"$main/AndroidManifest.xml",'--version-code','4','--version-name','1.3','--min-sdk-version','26','--target-sdk-version','36',"$BuildDirectory/resources.zip")
+Checked "$BuildTools/aapt2.exe" @('link','-o',"$BuildDirectory/unsigned.apk",'-I',$AndroidJar,'--manifest',"$main/AndroidManifest.xml",'--version-code','8','--version-name','1.7','--min-sdk-version','26','--target-sdk-version','36',"$BuildDirectory/resources.zip")
 $sources = @(Get-ChildItem "$main/java" -Filter '*.java' -Recurse | ForEach-Object { $_.FullName })
 Checked "$JavaHome/bin/javac.exe" (@('-encoding','UTF-8','-source','8','-target','8','-bootclasspath',($AndroidJar + ';' + "$BuildTools/core-lambda-stubs.jar"),'-d',$classes) + $sources)
 Checked "$JavaHome/bin/jar.exe" @("-J-Djava.io.tmpdir=$BuildDirectory",'cf',"$BuildDirectory/classes.jar",'-C',$classes,'.')
@@ -38,7 +38,7 @@ if (-not (Test-Path -LiteralPath $key)) {
 }
 $distribution = Join-Path $PSScriptRoot 'dist'
 New-Item -ItemType Directory -Force -Path $distribution | Out-Null
-$apk = Join-Path $distribution 'CivilGrandJuryRoster-1.3.apk'
+$apk = Join-Path $distribution 'CivilGrandJuryRoster-1.7.apk'
 Checked "$JavaHome/bin/java.exe" @('-jar',"$BuildTools/lib/apksigner.jar",'sign','--ks',$key,'--ks-pass','pass:android','--key-pass','pass:android','--out',$apk,"$BuildDirectory/aligned.apk")
 Checked "$JavaHome/bin/java.exe" @('-jar',"$BuildTools/lib/apksigner.jar",'verify','--verbose',$apk)
 Checked "$BuildTools/zipalign.exe" @('-c','4',$apk)
