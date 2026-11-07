@@ -6,7 +6,7 @@ import java.time.*;
 public final class RosterCore {
  public static final String[] FIELDS={"courtId","firstName","lastName","role","status","personalEmail","countyEmail","phone","street","unit","city","state","zip","position","badge","roomKey","departureDate","departureReason","startDate"};
  public static final String[] LABELS={"Court ID","First name","Last name","Roster role","Service status","Previous / personal email","Current county email","Phone","Street","Unit","City","State","ZIP","Court position / alternate number","Badge number","Room key","Departure date","Departure reason","Start date"};
- public static final String[] CHECKS={"Oath completed","Orientation completed","Contact details checked","County account accessible"};
+ public static final String[] CHECKS={"Oath completed","Orientation completed","Contact details checked","County account accessible","Form 700 filed","Grand Jury Badge obtained","Grand Jury Room key issued"};
  public static final String[] ROSTER_GROUPS={"Active jurors","Alternates","Resigned","Other departures"};
  public final Set<String> rosterGroups=new LinkedHashSet<>(Arrays.asList(ROSTER_GROUPS));
  public boolean visibleInRoster(Person p){String group=p.active()?(p.get("role").equals("Alternate")?"Alternates":"Active jurors"):(p.get("status").equals("Resigned")?"Resigned":"Other departures");return rosterGroups.contains(group);}
