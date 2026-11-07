@@ -15,6 +15,7 @@ public final class OnboardingTests {
   RosterCore atomic=new RosterCore();RosterCore.Person valid=person(atomic,"Juror","Active"),gone=person(atomic,"Alternate","Resigned");fails(()->atomic.completeOnboarding(set(valid.id,gone.id),set("Oath completed","Orientation completed"),set("Juror","Alternate")));check(valid.onboarding.isEmpty(),"Invalid batch validates everyone before changing anyone");
   check(atomic.completeOnboarding(set(valid.id),set("Oath completed","Orientation completed"),set("Juror"))==1&&valid.onboarding.size()==2,"Both activities can be marked together");
   RosterCore restored=Store.decode(Store.encode(r));check(restored.find(j.id).onboarding.containsAll(set("Oath completed","Orientation completed"))&&restored.events.size()==r.events.size(),"Bulk checks and history survive save/handoff");
+  j.onboarding.add("Form 700 filed");j.onboarding.add("Grand Jury Badge obtained");RosterCore reopened=Store.decode(Store.encode(r));RosterCore.Person saved=reopened.find(j.id);check(saved.onboarding.containsAll(j.onboarding)&&Arrays.asList(RosterCore.CHECKS).containsAll(Arrays.asList("Form 700 filed","Grand Jury Badge obtained")),"New onboarding checks and existing marks survive save and handoff");
   System.out.println("PASS: "+n+" bulk onboarding checks");
  }
 }
