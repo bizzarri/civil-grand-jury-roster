@@ -23,7 +23,7 @@ Meeting scheduling and attendance are included. Quorum calculations remain defer
 
 ## For forepersons
 
-This repository currently publishes **source code**. No prebuilt public APK release is included. Developers can build an installer using the instructions below.
+Download **CivilGrandJuryRoster-v1.9.0-alpha.1.apk** under **Assets** on the [alpha release page](https://github.com/bizzarri/civil-grand-jury-roster/releases/tag/v1.9.0-alpha.1). This alpha is intended for technical evaluation. The release includes a SHA-256 checksum file. Android displays app version 1.9.
 
 1. Open **Config** to set the display name, term years, regular seats and alternate slots. Defaults are 19 regular seats and 20 alternate slots; adjust them for your organization.
 2. Use **Import** to select a court workbook, confirm sheet roles/status and column mappings, and stage the differences.
@@ -39,7 +39,7 @@ You need an Android phone or tablet running Android 8.0 or later and a built APK
 
 ### Install directly on your Android device
 
-1. Transfer the APK to your phone or tablet, for example with a USB cable or a download link supplied by your maintainer.
+1. On your Android device, open the [alpha release page](https://github.com/bizzarri/civil-grand-jury-roster/releases/tag/v1.9.0-alpha.1), expand **Assets**, and download **CivilGrandJuryRoster-v1.9.0-alpha.1.apk**. You can also transfer this APK from a computer by USB.
 2. Open **Files > Downloads**, or the folder where you saved it, and tap the APK.
 3. If Android asks, open **Settings** from the prompt and enable **Allow from this source** for the browser or file manager opening the installer. Wording varies by device.
 4. Return to the installer and tap **Install**. After installation, you can turn off that permission.
@@ -56,6 +56,16 @@ For an update, install the newer APK over the existing app using the same signin
 5. Under **Work > Meetings & attendance**, configure or add meeting dates. Scheduled meeting days show in-person and online attendance checkboxes on active members' roster cards.
 
 Each installation keeps its own records. To give another leader a copy, transfer the APK and an encrypted handoff, sending the passphrase separately. Changes on separate devices are independent.
+
+### Technical-team evaluation
+
+Start with the [fictional sample roster](examples/roster.csv) or create fictional members. Open the sample on GitHub, choose **Raw**, and save it as a CSV before importing.
+
+Try import and review, promotions and resignations, seven onboarding checks, a meeting on today's date, in-person and online attendance, and encrypted handoff export and restore. Restore replaces the working roster, so use a test installation for recovery tests.
+
+Report problems through [GitHub Issues](https://github.com/bizzarri/civil-grand-jury-roster/issues), including app version, Android version, device model, reproduction steps and expected/actual results. Use fictional examples and redact personal information in screenshots.
+
+Each device keeps an independent roster. Quorum calculations are deferred. The alpha uses the maintained development signing certificate for continuity with existing installations. Future updates depend on retaining that private signing key.
 
 ### Optional USB installation with ADB
 
@@ -119,3 +129,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). The app i
 ## License
 
 [MIT](LICENSE). Copyright remains with the authors identified in the license. The Amador county-email default is a configurable public naming convention, not an affiliation or endorsement.
+
