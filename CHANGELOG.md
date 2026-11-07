@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.9 — 2026-11-07
+
+- Added Grand Jury Room key issued to member onboarding, with seven-item progress totals.
+- Added README instructions for installing an APK, loading a court spreadsheet or encrypted handoff, updating the app and optional USB installation.
+
+## 1.8
+
+- Added Form 700 filed and Grand Jury Badge obtained to member onboarding.
+- Preserved existing marks and updated Work progress totals to use the configured check count.
+- Added save/handoff regression coverage for the additional checks.
+
 ## 1.7 — 2026-10-30
 
 - Exact term start/end dates in Config > App & Term, with calendar pickers and handoff persistence.

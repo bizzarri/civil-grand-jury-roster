@@ -28,9 +28,11 @@ Handoff includes all meetings, exceptions, attendance and history. Export attend
 
 Previous/personal email and current county email are separate fields. Changes retain old addresses in email history. County-email test states are Not tested, Test sent, Confirmed and Failed. The app records the operator's test status; it does not send test mail. Changing a county address resets its confirmation. Save the new address before recording its test result.
 
-Oath completion, orientation, checked contacts, county-account access, titles and operational notes are maintained manually. Court imports do not directly overwrite those operational fields.
+Oath completion, orientation, checked contacts, county-account access, Form 700 filed, Grand Jury Badge obtained, Grand Jury Room key issued, titles and operational notes are maintained manually. Court imports do not directly overwrite those operational fields.
 
 **Work > Bulk onboarding** lets you complete oath or orientation for selected active regular jurors, alternates, or both. Review the member preview before applying. Departed members are excluded, already completed checks are skipped, and changes record member history.
+
+Clear Grand Jury Room key issued when the key is returned. The existing court-details room-key text field can still hold an identifier or description.
 
 A member form can generate a suggested county address. Handoff also provides a bulk preview for active members with blank county emails. Existing addresses and departed members are skipped in bulk generation. Duplicate suggestions require county confirmation; numeric suffixes are not guessed. Name accents and punctuation are normalized, so unusual names need review.
 
