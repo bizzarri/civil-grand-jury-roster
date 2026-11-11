@@ -2,12 +2,13 @@
 
 An offline Android app for maintaining a working civil grand-jury roster and transferring it to the next foreperson.
 
-**Current source version: 1.9.** This is an early working application. It opens with an empty roster; no real juror information, court spreadsheets, account credentials or signing keys are included.
+**Current source version: 1.11.** This is an early working application. It opens with an empty roster; no real juror information, court spreadsheets, account credentials or signing keys are included.
 
 ## What it does
 
 - Tracks regular jurors, alternates, resignations, other departures and unfilled seats for one term.
 - Keeps previous/personal email separate from county email, retains previous addresses, and records county-email test progress.
+- Opens member details in Android Contacts, fills the phone dialer, and prepares editable county test emails.
 - Tracks seven onboarding checks, including Form 700 filed, Grand Jury Badge obtained and Grand Jury Room key issued, alongside foreperson notes.
 - Queues distribution-list changes for manual completion and records confirmed memberships.
 - Imports XLSX and UTF-8 CSV/TSV, compares source rows with the working roster, and stages changes for per-member and per-field review.
@@ -23,7 +24,7 @@ Meeting scheduling and attendance are included. Quorum calculations remain defer
 
 ## For forepersons
 
-Download **CivilGrandJuryRoster-v1.9.0-alpha.1.apk** under **Assets** on the [alpha release page](https://github.com/bizzarri/civil-grand-jury-roster/releases/tag/v1.9.0-alpha.1). This alpha is intended for technical evaluation. The release includes a SHA-256 checksum file. Android displays app version 1.9.
+Download **CivilGrandJuryRoster-v1.11.0-alpha.1.apk** under **Assets** on the [alpha release page](https://github.com/bizzarri/civil-grand-jury-roster/releases/tag/v1.11.0-alpha.1). This alpha is intended for technical evaluation. The release includes a SHA-256 checksum file. Android displays app version 1.11.
 
 1. Open **Config** to set the display name, term years, regular seats and alternate slots. Defaults are 19 regular seats and 20 alternate slots; adjust them for your organization.
 2. Use **Import** to select a court workbook, confirm sheet roles/status and column mappings, and stage the differences.
@@ -35,11 +36,11 @@ See [the user guide](docs/USER_GUIDE.md), [privacy and handoff notes](docs/PRIVA
 
 ## Install and load the app
 
-You need an Android phone or tablet running Android 8.0 or later and a built APK installer. Obtain the APK from the person maintaining your installation, or build it with the Windows instructions below. GitHub's **Code > Download ZIP** provides the source code. The installer produced by the build is named `CivilGrandJuryRoster-1.9.apk`.
+You need an Android phone or tablet running Android 8.0 or later and a built APK installer. Obtain the APK from the person maintaining your installation, or build it with the Windows instructions below. GitHub's **Code > Download ZIP** provides the source code. The installer produced by the build is named `CivilGrandJuryRoster-1.11.apk`.
 
 ### Install directly on your Android device
 
-1. On your Android device, open the [alpha release page](https://github.com/bizzarri/civil-grand-jury-roster/releases/tag/v1.9.0-alpha.1), expand **Assets**, and download **CivilGrandJuryRoster-v1.9.0-alpha.1.apk**. You can also transfer this APK from a computer by USB.
+1. On your Android device, open the [alpha release page](https://github.com/bizzarri/civil-grand-jury-roster/releases/tag/v1.11.0-alpha.1), expand **Assets**, and download **CivilGrandJuryRoster-v1.11.0-alpha.1.apk**. You can also transfer this APK from a computer by USB.
 2. Open **Files > Downloads**, or the folder where you saved it, and tap the APK.
 3. If Android asks, open **Settings** from the prompt and enable **Allow from this source** for the browser or file manager opening the installer. Wording varies by device.
 4. Return to the installer and tap **Install**. After installation, you can turn off that permission.
@@ -56,6 +57,12 @@ For an update, install the newer APK over the existing app using the same signin
 5. Under **Work > Meetings & attendance**, configure or add meeting dates. Scheduled meeting days show in-person and online attendance checkboxes on active members' roster cards.
 
 Each installation keeps its own records. To give another leader a copy, transfer the APK and an encrypted handoff, sending the passphrase separately. Changes on separate devices are independent.
+
+### Contact actions and county test emails
+
+Open a member and choose **Contact actions**. **Save to Contacts** opens a contact with their name, phone, personal and county email addresses, and mailing address. Review it and select where to save it. **Call phone number** fills the dialer so you can place the call.
+
+**Compose county test email** opens a message editor inside the roster app. Review the recipient and edit the body, then choose **Open email app**. Review the draft and send it from your email app. After sending, record **Test sent** on the member and save the record. Set the starting text under **Config > County Test Email**, then choose **Save configuration**. Edits in a message window apply to that draft.
 
 ### Technical-team evaluation
 
@@ -74,7 +81,7 @@ Install Android SDK Platform-Tools on Windows. Connect the device by USB, enable
 ```powershell
 $adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 & $adb devices
-& $adb install -r "./dist/CivilGrandJuryRoster-1.9.apk"
+& $adb install -r "./dist/CivilGrandJuryRoster-1.11.apk"
 ```
 
 Continue when `adb devices` lists the phone with status `device`. For `unauthorized`, unlock the phone and approve the USB debugging prompt. Open the app from the device's app drawer after installation.
@@ -100,7 +107,7 @@ cd civil-grand-jury-roster
   -JavaHome $env:JAVA_HOME
 ```
 
-Output: `dist/CivilGrandJuryRoster-1.9.apk`. Minimum supported Android version is 8.0 (API 26); target/compile SDK is 36.
+Output: `dist/CivilGrandJuryRoster-1.11.apk`. Minimum supported Android version is 8.0 (API 26); target/compile SDK is 36.
 
 The script uses AAPT2, javac, D8, zipalign and apksigner, then verifies signing and alignment. It generates a **local development signing key** under `.build/`; the key and built APK are ignored by Git. Keep your key to build future in-place updates. An APK signed with a different key cannot replace an existing installation. Export a handoff before changing installation/signing arrangements.
 
@@ -129,4 +136,3 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). The app i
 ## License
 
 [MIT](LICENSE). Copyright remains with the authors identified in the license. The Amador county-email default is a configurable public naming convention, not an affiliation or endorsement.
-

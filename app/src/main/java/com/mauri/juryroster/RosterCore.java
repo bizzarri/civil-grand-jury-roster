@@ -15,6 +15,8 @@ public final class RosterCore {
  public String appName="Civil Grand Jury Roster";
  public String[] titles={"Foreperson","Foreperson pro tem","Recording Secretary","Corresponding Secretary","Assistant Secretary","","",""};
  public String termStart="2026-07-01",termEnd="2027-06-30";
+ public static final String DEFAULT_COUNTY_TEST_BODY = "This is a test of your county email for the Civil Grand Jury. Please reply to confirm you received it. Thank you.";
+ public String countyTestBody = DEFAULT_COUNTY_TEST_BODY;
  public String term="2026-2027",foreperson="",handoffNotes="";
  public int seats=19,alternateSlots=20;
  public String countyDomain="amadorcounty.gov",countyPattern="{first_initial}{last}";
