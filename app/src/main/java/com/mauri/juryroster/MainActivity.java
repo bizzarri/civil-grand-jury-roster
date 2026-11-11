@@ -8,6 +8,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.*;
 import android.provider.OpenableColumns;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.Intents.Insert;
 import android.text.*;
 import android.view.*;
 import android.widget.*;
@@ -78,6 +80,7 @@ public final class MainActivity extends Activity {
   for(String f:new String[]{"courtId","firstName","lastName"})fields.put(f,input(basics,RosterCore.label(f),person.get(f),false));
   role=spinner(basics,"Roster role",new String[]{"Juror","Alternate"},person.get("role"));status=spinner(basics,"Service status",new String[]{"Active","Resigned","Excused","Completed"},person.get("status"));
   for(String f:new String[]{"personalEmail","countyEmail","phone","startDate","departureDate","departureReason"})fields.put(f,input(basics,RosterCore.label(f)+(f.endsWith("Date")?" (YYYY-MM-DD)":""),person.get(f),false));
+  button(basics,"Contact actions",v->contactActions(readDraft()),false);
   button(basics,"Generate county email",v->generateForEditor(),false);
   add(basics,text("Rule: "+data.countyPattern+"@"+data.countyDomain+". Generated addresses are suggestions; the county must issue the account and it still needs testing.",13,MUTED),8);
   LinearLayout leadership=card(page);section(leadership,"JUROR TITLES");add(leadership,text("Select any titles held by this member. Title names are edited in Config.",13,MUTED),8);
@@ -93,6 +96,109 @@ public final class MainActivity extends Activity {
   if(!editingId.isEmpty()){LinearLayout history=card(page);section(history,"RECENT MEMBER HISTORY");int count=0;for(int i=data.events.size()-1;i>=0&&count<12;i--){RosterCore.Event e=data.events.get(i);if(e.personId.equals(person.id)){add(history,text(e.at+"\n"+e.action+" · "+e.detail,12,MUTED),10);count++;}}}
   button(page,"Save member",v->saveEditor(),true);button(page,"Cancel",v->requestNav("Roster"),false);
  }
+ private void contactActions(RosterCore.Person person) {
+  String[] actions = {"Save to Contacts", "Call phone number", "Compose county test email"};
+  new AlertDialog.Builder(this)
+    .setTitle("Contact actions")
+    .setItems(actions, (dialog, choice) -> {
+      switch (choice) {
+        case 0: saveToContacts(person); break;
+        case 1: dialMember(person); break;
+        case 2: composeCountyTest(person); break;
+      }
+    })
+    .setNegativeButton("Cancel", null)
+    .show();
+ }
+
+ private void saveToContacts(RosterCore.Person person) {
+  if (person.get("firstName").isEmpty() && person.get("lastName").isEmpty()) {
+   toast("Enter the member’s name first.");
+   return;
+  }
+  Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
+  intent.putExtra(Insert.NAME, person.name());
+  intent.putExtra(Insert.PHONE, person.get("phone"));
+  String personal = person.get("personalEmail");
+  String county = person.get("countyEmail");
+  if (!personal.isEmpty()) {
+   intent.putExtra(Insert.EMAIL, personal);
+   intent.putExtra(Insert.EMAIL_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_HOME);
+   if (!county.isEmpty()) {
+    intent.putExtra(Insert.SECONDARY_EMAIL, county);
+    intent.putExtra(Insert.SECONDARY_EMAIL_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK);
+   }
+  } else if (!county.isEmpty()) {
+   intent.putExtra(Insert.EMAIL, county);
+   intent.putExtra(Insert.EMAIL_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK);
+  }
+  List<String> address = new ArrayList<>();
+  for (String field : new String[]{"street", "unit", "city", "state", "zip"}) {
+   String value = person.get(field);
+   if (!value.isEmpty()) address.add(value);
+  }
+  if (!address.isEmpty()) {
+   intent.putExtra(Insert.POSTAL, String.join(", ", address));
+   intent.putExtra(Insert.POSTAL_TYPE, ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME);
+  }
+  openContactApp(intent, "No Contacts app is available.");
+ }
+
+ private void dialMember(RosterCore.Person person) {
+  String number = person.get("phone");
+  if (number.isEmpty()) {
+   toast("Enter a phone number first.");
+   return;
+  }
+  Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null));
+  openContactApp(intent, "No phone dialer is available.");
+ }
+
+ private void composeCountyTest(RosterCore.Person person) {
+  String address = person.get("countyEmail");
+  if (!android.util.Patterns.EMAIL_ADDRESS.matcher(address).matches()) {
+   toast("Enter a valid county email first.");
+   return;
+  }
+  LinearLayout form = dialogBox();
+  add(form, text("To: " + address, 14, MUTED), 0);
+  EditText body = input(form, "Message body", data.countyTestBody, true);
+  body.setMinLines(5);
+  body.setGravity(Gravity.TOP | Gravity.START);
+
+  ScrollView content = new ScrollView(this);
+  content.addView(form);
+  AlertDialog dialog = new AlertDialog.Builder(this)
+    .setTitle("County test email")
+    .setView(content)
+    .setPositiveButton("Open email app", null)
+    .setNegativeButton("Cancel", null)
+    .create();
+  dialog.setOnShowListener(ignored -> {
+   dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+    String subject = "Civil Grand Jury county email test";
+    Uri message = Uri.parse("mailto:" + Uri.encode(address, "@")
+      + "?subject=" + Uri.encode(subject) + "&body=" + Uri.encode(body.getText().toString()));
+    if (openContactApp(new Intent(Intent.ACTION_SENDTO, message), "No email app is available.")) {
+     dialog.dismiss();
+    }
+   });
+  });
+  dialog.show();
+  body.requestFocus();
+  body.setSelection(body.length());
+ }
+
+ private boolean openContactApp(Intent intent, String unavailableMessage) {
+  try {
+   startActivity(intent);
+   return true;
+  } catch (ActivityNotFoundException | SecurityException e) {
+   toast(unavailableMessage);
+   return false;
+  }
+ }
+
  private RosterCore.Person readDraft(){RosterCore.Person p=copy(draft);for(Map.Entry<String,EditText> e:fields.entrySet())p.court.put(e.getKey(),e.getValue().getText().toString().trim());p.court.put("role",role.getSelectedItem().toString());p.court.put("status",status.getSelectedItem().toString());p.emailTest=test.getSelectedItem().toString();p.note=note.getText().toString();if(!draft.get("countyEmail").equals(p.get("countyEmail"))&&!editingId.isEmpty()){p.emailTest="Not tested";p.emailTestAt="";}p.titleIds.clear();for(Map.Entry<String,CheckBox> e:titleChecks.entrySet())if(e.getValue().isChecked())p.titleIds.add(e.getKey());p.onboarding.clear();for(Map.Entry<String,CheckBox> e:checks.entrySet())if(e.getValue().isChecked())p.onboarding.add(e.getKey());return p;}
  private void saveEditor(){
   RosterCore.Person updated=readDraft();RosterCore.Person old=data.find(editingId);
@@ -255,9 +361,13 @@ public final class MainActivity extends Activity {
   EditText name=input(identity,"App display name",data.appName,false),years=input(identity,"Term years (YYYY-YYYY)",data.term,false),seats=input(identity,"Regular seats",String.valueOf(data.seats),false),alternates=input(identity,"Alternate slots",String.valueOf(data.alternateSlots),false);seats.setInputType(2);alternates.setInputType(2);
   EditText termStart=termDateInput(identity,"Term start date",data.termStart),termEnd=termDateInput(identity,"Term end date",data.termEnd);
   add(identity,text("The name appears in the app header, with the years on a separate line. The Android launcher name is Civil Grand Jury Roster.",13,MUTED),10);
+  LinearLayout countyTestSettings = card(page);
+  section(countyTestSettings, "COUNTY TEST EMAIL");
+  EditText countyTestBody = input(countyTestSettings, "Test email body", data.countyTestBody, true);
+  add(countyTestSettings, text("Review and send the message in your email app. After sending, set the member’s county email test to Test sent.", 13, MUTED), 8);
   LinearLayout titles=card(page);section(titles,"JUROR TITLES");add(titles,text("Five starting titles plus three extra slots. Rename a slot to update its name for every assigned member. Leave unused slots blank; unassign a title before clearing its slot.",14,MUTED),10);
   List<EditText> editors=new ArrayList<>();for(int i=0;i<8;i++)editors.add(input(titles,"Title "+(i+1)+(i>=5?" (extra)":""),data.titles[i],false));
-  button(page,"Save configuration",v->{try{String[] names=new String[8];for(int i=0;i<8;i++)names[i]=editors.get(i).getText().toString();int regular=Integer.parseInt(seats.getText().toString()),alt=Integer.parseInt(alternates.getText().toString());if(change(()->{data.configure(name.getText().toString(),years.getText().toString(),regular,alt,names);data.setTermDates(termStart.getTag().toString(),termEnd.getTag().toString());})){shell();navigate("Config");toast("Configuration saved; title assignments preserved.");}}catch(NumberFormatException e){error(new Exception("Seat counts must be whole numbers."));}},true);
+  button(page,"Save configuration",v->{try{String[] names=new String[8];for(int i=0;i<8;i++)names[i]=editors.get(i).getText().toString();int regular=Integer.parseInt(seats.getText().toString()),alt=Integer.parseInt(alternates.getText().toString());if(change(()->{data.configure(name.getText().toString(),years.getText().toString(),regular,alt,names);data.setTermDates(termStart.getTag().toString(),termEnd.getTag().toString());data.countyTestBody=countyTestBody.getText().toString();})){shell();navigate("Config");toast("Configuration saved; title assignments preserved.");}}catch(NumberFormatException e){error(new Exception("Seat counts must be whole numbers."));}},true);
  }
  private void handoff(){
   heading("Term & handoff","Prepare the next foreperson without losing operational history.");
