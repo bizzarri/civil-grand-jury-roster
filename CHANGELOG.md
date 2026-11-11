@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.11
+
+- Added an in-app county test email editor that shows the recipient and starts with the saved template.
+- Hands the edited draft to the email app for review and sending.
+
+## 1.10
+
+- Added member contact actions for Android Contacts, the phone dialer, and county test email.
+- Added a configurable test email body that persists in encrypted handoffs.
+
 ## 1.9 — 2026-11-07
 
 - Added Grand Jury Room key issued to member onboarding, with seven-item progress totals.
