@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.12 — 2026-11-18
+
+- Added Work > Text active jurors for meeting changes and urgent updates.
+- Provides an editable message, selected-recipient preview, missing-number warnings and duplicate-number handling.
+- Opens the draft in the phone's messaging app for review and sending.
+- Starts new messages with an empty body for general use.
+
 ## 1.11
 
 - Added an in-app county test email editor that shows the recipient and starts with the saved template.

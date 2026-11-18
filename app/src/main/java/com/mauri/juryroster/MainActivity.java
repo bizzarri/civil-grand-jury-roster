@@ -295,8 +295,73 @@ public final class MainActivity extends Activity {
   AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Review onboarding updates").setView(preview).setPositiveButton("Mark selected completed",null).setNegativeButton("Cancel",null).create();
   dialog.setOnShowListener(x->dialog.getButton(-1).setOnClickListener(v->{Set<String> ids=new LinkedHashSet<>();for(Map.Entry<String,CheckBox> entry:selections.entrySet())if(entry.getValue().isChecked())ids.add(entry.getKey());if(ids.isEmpty()){error(new Exception("Select at least one member, or cancel."));return;}final int[] changed={0};if(change(()->changed[0]=data.completeOnboarding(ids,completed,roles))){dialog.dismiss();navigate("Work");toast("Onboarding updated for "+changed[0]+" members.");}}));dialog.show();
  }
+ private void textActiveJurors() {
+  LinearLayout form = dialogBox();
+  ScrollView content = new ScrollView(this);
+  content.addView(form);
+  String initialMessage = "";
+  EditText message = input(form, "Message", initialMessage, true);
+  message.setMinLines(3);
+  add(form, text("Choose recipients, then review the draft in Messages and tap Send. Group recipients may see each other’s numbers.", 14, MUTED), 12);
+  Map<String, CheckBox> selected = new LinkedHashMap<>();
+  Map<String, String> numbers = new LinkedHashMap<>();
+  int missing = 0;
+  List<RosterCore.Person> jurors = new ArrayList<>(data.people);
+  Collections.sort(jurors, (a, b) -> a.name().compareToIgnoreCase(b.name()));
+  for (RosterCore.Person person : jurors) {
+   if (!person.active() || !person.get("role").equals("Juror")) continue;
+   String raw = person.get("phone").trim();
+   String number = raw.replaceAll("[().\\s-]", "");
+   boolean valid = number.matches("\\+?[0-9]{7,15}");
+   CheckBox choice = new CheckBox(this);
+   choice.setText(person.name() + "\n" + (raw.isEmpty() ? "Phone number missing" : raw));
+   choice.setTextColor(valid ? INK : AMBER);
+   choice.setEnabled(valid);
+   choice.setChecked(valid);
+   form.addView(choice);
+   if (valid) {
+    selected.put(person.id, choice);
+    numbers.put(person.id, number);
+   } else {
+    missing++;
+   }
+  }
+  if (missing > 0) add(form, text(missing + " active juror(s) need a valid phone number before they can be included.", 14, AMBER), 12);
+  AlertDialog dialog = new AlertDialog.Builder(this)
+    .setTitle("Text active jurors")
+    .setView(content)
+    .setPositiveButton("Open Messages", null)
+    .setNegativeButton("Cancel", null)
+    .create();
+  dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+   LinkedHashMap<String, String> unique = new LinkedHashMap<>();
+   for (Map.Entry<String, CheckBox> entry : selected.entrySet()) {
+    if (!entry.getValue().isChecked()) continue;
+    RosterCore.Person current = data.find(entry.getKey());
+    if (current == null || !current.active() || !current.get("role").equals("Juror")) {
+     toast("The roster changed. Reopen the recipient preview.");
+     return;
+    }
+    String number = numbers.get(entry.getKey());
+    String key = number.replaceFirst("^\\+", "");
+    if (key.length() == 11 && key.startsWith("1")) key = key.substring(1);
+    unique.put(key, number);
+   }
+   if (unique.isEmpty() || message.getText().toString().trim().isEmpty()) {
+    toast("Select at least one phone number and enter a message.");
+    return;
+   }
+   List<String> encoded = new ArrayList<>();
+   for (String number : unique.values()) encoded.add(Uri.encode(number, "+"));
+   Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + String.join(",", encoded)));
+   intent.putExtra("sms_body", message.getText().toString());
+   if (openContactApp(intent, "No text messaging app is available.")) dialog.dismiss();
+  }));
+  dialog.show();
+ }
+
  private void work(){
-  heading("Operational work","Pending list changes, email checks, and onboarding.");button(page,"Meetings & attendance",v->navigate("Meetings"),true);button(page,"Bulk onboarding",v->bulkOnboarding(),true);int count=0;
+  heading("Operational work","Pending list changes, email checks, and onboarding.");button(page,"Text active jurors",v->textActiveJurors(),true);button(page,"Meetings & attendance",v->navigate("Meetings"),true);button(page,"Bulk onboarding",v->bulkOnboarding(),true);int count=0;
   for(RosterCore.Task t:data.tasks)if(t.status.equals("Pending")){count++;RosterCore.Person p=data.find(t.personId);LinearLayout c=card(page);add(c,text(t.action+" · "+t.list,20,INK),0);add(c,text(p==null?"Unknown member":p.name(),16,TEAL),6);add(c,text("Previous: "+t.oldEmail+"\nTarget: "+t.newEmail+"\n"+t.note,13,MUTED),8);button(c,"Mark actual change complete",v->new AlertDialog.Builder(this).setTitle("Confirm list change").setMessage("Has “"+t.list+"” actually been updated outside this app?").setPositiveButton("Yes, completed",(d,w)->{if(change(()->data.finishTask(t,true)))navigate("Work");}).setNegativeButton("Not yet",null).show(),true);button(c,"Cancel task",v->{if(change(()->data.finishTask(t,false)))navigate("Work");},false);}
   if(count==0)add(page,text("No pending distribution-list changes.",16,TEAL),18);
   LinearLayout needs=card(page);section(needs,"MEMBERS NEEDING FOLLOW-UP");int waiting=0;

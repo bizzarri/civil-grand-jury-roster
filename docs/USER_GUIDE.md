@@ -24,6 +24,17 @@ The first attendance action captures active members' names and roles for that me
 
 Handoff includes all meetings, exceptions, attendance and history. Export attendance CSV provides a readable, unencrypted report, including cancelled and removed meetings. Keep encrypted backups before upgrades; older app versions do not preserve newer meeting and term-date fields, so do not downgrade after recording these features.
 
+## Text active jurors
+
+Send meeting changes and urgent updates from **Work > Text active jurors**.
+
+1. Write your message in the editable message box.
+2. Review the recipient list. Active regular jurors with usable phone numbers are selected. You can uncheck anyone who should not receive the message.
+3. Check the warnings for missing or unusable phone numbers, and arrange another way to contact those members.
+4. Tap **Open Messages**, review the recipients and message in your messaging app, then tap **Send**.
+
+Duplicate numbers are combined. Group recipients may see each other's numbers, and your messaging app and carrier determine group behavior, SMS/MMS/RCS handling, and recipient limits. Sending and replies take place in your messaging app.
+
 ## Contacts, onboarding and county email
 
 Previous/personal email and current county email are separate fields. Changes retain old addresses in email history. County-email test states are Not tested, Test sent, Confirmed and Failed. Use **Contact actions > Compose county test email** on a member to edit a draft. Choose **Open email app**, review and send there, then record **Test sent** in the member form. Set the default body under **Config > County Test Email** and save configuration. Changing a county address resets its confirmation. Save the new address before recording its test result.
